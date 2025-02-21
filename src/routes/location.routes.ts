@@ -5,7 +5,6 @@ const router = express.Router();
 
 // Route Calculation API
 router.post('/route', async (req, res) => {
-    console.log(1);
     
     try {
         const { fromAddress, toAddress } = req.body;
@@ -14,7 +13,6 @@ router.post('/route', async (req, res) => {
         }
 
         const routeData = await calculateRoute(fromAddress, toAddress);
-        console.log(-1);
 
         res.send(routeData);
     } catch (error) {

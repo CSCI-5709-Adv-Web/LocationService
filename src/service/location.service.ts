@@ -32,7 +32,6 @@ const getCoordinates = async (address: string) => {
 
 // Calculate shortest road distance using AWS Route Matrix
 export const calculateRoute = async (fromAddress: string, toAddress: string) => {
-    console.log(2);
 
     try {
         logger.info(`Calculating route from ${fromAddress} to ${toAddress}`);
@@ -40,9 +39,6 @@ export const calculateRoute = async (fromAddress: string, toAddress: string) => 
         // Get Coordinates for Both Addresses
         const fromCoords = await getCoordinates(fromAddress);
         const toCoords = await getCoordinates(toAddress);
-        console.log(fromAddress, 
-            toAddress
-        );
 
         // Prepare AWS Route Command
         const command = new CalculateRouteMatrixCommand({
