@@ -1,0 +1,55 @@
+name: Location Service CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - master # Runs pipeline when pushing to master
+
+jobs:
+  build-and-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest # Runs on GitHub-hosted runner
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set Up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t jashpatel1511/web-location-service:latest .
+          docker push jashpatel1511/web-location-service:latest
+
+  deploy:
+    name: Deploy to EKS Cluster
+    needs: build-and-push
+    runs-on: ubuntu-latest # Runs on GitHub-hosted runner
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1 # Corrected key name for region
+
+      - name: Update kubeconfig for EKS
+        run: |
+          aws eks --region us-east-1 update-kubeconfig --name ${{ secrets.AWS_CLUSTER_NAME }}
+
+      - name: Apply Kubernetes Resources
+        run: |
+          kubectl apply -f k8s/LocationService-configmap.yaml
+          kubectl apply -f k8s/LocationService-secret.yaml
+          kubectl apply -f k8s/LocationService-deployment.yaml
