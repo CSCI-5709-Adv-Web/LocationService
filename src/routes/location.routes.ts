@@ -10,6 +10,16 @@ import { redis } from "../config/redis"
 
 const router = express.Router()
 
+// Root route for health checks
+router.get("/", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    service: "location-service",
+    version: "1.0.0",
+    endpoints: ["/autocomplete", "/geocode", "/matrix", "/route", "/health"],
+  })
+})
+
 // Address Autocomplete API
 router.get("/autocomplete", async (req, res) => {
   try {
