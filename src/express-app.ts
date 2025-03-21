@@ -31,8 +31,8 @@ app.use((req, res, next) => {
 });
 
 // API routes
-app.use("/location/docs", docsRoutes);
-app.use("/location/location", locationRoutes);
+app.use("/api/docs", docsRoutes);
+app.use("/api/location", locationRoutes);
 
 // Add a healthcheck endpoint
 app.get("/health", (req, res) => {
