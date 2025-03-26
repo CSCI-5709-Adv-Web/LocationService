@@ -1,4 +1,4 @@
-import { logger, startTimer } from "."
+import { logger } from "./logger"
 
 // Track the execution time of an async function
 export const trackPerformance = async <T>(
@@ -8,12 +8,10 @@ export const trackPerformance = async <T>(
 )
 : Promise<T> =>
 {
-  const timer = startTimer()
-
+  const startTime = Date.now()
   try {
     const result = await fn()
-    const duration = timer()
-
+    const duration = Date.now() - startTime
     logger.debug(
       {
         operation: operationName,
@@ -21,13 +19,11 @@ export const trackPerformance = async <T>(
         success: true,
         ...meta,
       },
-      `${operationName} completed in ${duration.toFixed(2)}ms`,
+      `${operationName} completed in ${duration}ms`,
     )
-
-    return result;
+    return result
   } catch (error: any) {
-    const duration = timer()
-
+    const duration = Date.now() - startTime
     logger.error(
       {
         operation: operationName,
@@ -39,17 +35,14 @@ export const trackPerformance = async <T>(
         },
         ...meta,
       },
-      `${operationName} failed after ${duration.toFixed(2)}ms: ${error.message}`,
+      `${operationName} failed after ${duration}ms: ${error.message}`,
     )
-
     throw error
   }
 }
 
-// Track resource consumption
 export const logResourceUsage = (label = "Resource usage") => {
   const memoryUsage = process.memoryUsage()
-
   logger.debug(
     {
       memoryUsage: {

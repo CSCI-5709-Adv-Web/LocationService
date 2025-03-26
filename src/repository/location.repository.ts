@@ -1,19 +1,24 @@
-import { getCoordinates, calculateRoute, getDetailedRoute, getAddressSuggestions } from "../service/location.service";
-import { Location } from "../types";
-import { GeocodeResponse } from "../types/location.type";
+import {
+    findCoordinates,
+    calculateRouteMatrix,
+    getDetailedRoute,
+    getAddressSuggestions,
+} from "../service/location.service"
+import type { GeocodeResponse } from "../types/location.type"
 
-export const findCoordinates = async (address: string): Promise<GeocodeResponse> => {
-    return await getCoordinates(address);
-};
+export const findCoordinatesRepo = async (address: string): Promise<GeocodeResponse> => {
+    return await findCoordinates(address)
+}
 
-export const calculateRouteMatrix = async (fromAddress: string, toAddress: string) => {
-    return await calculateRoute(fromAddress, toAddress);
-};
+export const calculateRouteMatrixRepo = async (fromAddress: string, toAddress: string) => {
+    return await calculateRouteMatrix(fromAddress, toAddress)
+}
 
 export const getRouteDetails = async (fromAddress: string, toAddress: string) => {
-    return await getDetailedRoute(fromAddress, toAddress);
-};
+    return await getDetailedRoute(fromAddress, toAddress)
+}
 
-export const getAddressAutocomplete = async (text: string, maxResults: number = 5, language: string = 'en') => {
-    return await getAddressSuggestions(text, maxResults, language);
-};
+export const getAddressAutocomplete = async (text: string, maxResults = 5, language = "en") => {
+    return await getAddressSuggestions(text, maxResults, language)
+}
+

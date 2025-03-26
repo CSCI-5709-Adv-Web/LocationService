@@ -8,7 +8,6 @@ import crypto from "crypto";
 
 const app = express();
 
-// Add request ID tracking middleware
 app.use((req, res, next) => {
   const requestId =
     (req.headers["x-request-id"] as string) || crypto.randomUUID();
@@ -16,25 +15,17 @@ app.use((req, res, next) => {
   res.setHeader("X-Request-ID", requestId);
   next();
 });
-
-// Apply middleware
 app.use(express.json());
 app.use(cors());
-app.use(httpLogger); // HTTP request logging
-
-// Add basic security headers
+app.use(httpLogger);
 app.use((req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-XSS-Protection", "1; mode=block");
   res.setHeader("X-Frame-Options", "DENY");
   next();
 });
-
-// API routes
 app.use("/docs", docsRoutes);
 app.use("/location", locationRoutes);
-
-// Add a healthcheck endpoint
 app.get("/health", (req, res) => {
   res.status(200).json({
     status: "ok",
@@ -42,9 +33,6 @@ app.get("/health", (req, res) => {
     timestamp: Date.now(),
   });
 });
-
-// Error handling middleware (must be after all routes)
 app.use(notFoundHandler);
 app.use(errorHandler);
-
 export default app;
