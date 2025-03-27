@@ -1,64 +1,21 @@
 import { randomUUID } from "crypto"
 import pino from "pino"
 import { pinoHttp } from "pino-http"
-import type { Request, Response } from "express"
 import { SERVER_CONFIG } from "../../config"
 
-const isProduction = SERVER_CONFIG.NODE_ENV === "production"
 const logLevel = SERVER_CONFIG.LOG_LEVEL
-const customSerializers = {
-  ...pino.stdSerializers,
-  req: (req: Request) => {
-    return {
-      id: req.id,
-      method: req.method,
-      url: req.url,
-    }
-  },
-  res: (res: Response) => {
-    return {
-      statusCode: res.statusCode,
-    }
-  },
-}
 
-const baseLoggerConfig = {
-  level: logLevel,
-  base: {
-    serviceName: "location-service",
-    env: SERVER_CONFIG.NODE_ENV,
-  },
-  serializers: customSerializers,
-  timestamp: pino.stdTimeFunctions.isoTime,
-}
-
-const transportConfig = isProduction
-  ? {
-      targets: [
-        {
-          target: "pino/file",
-          options: { destination: "./logs/app.log" },
-          level: logLevel,
-        },
-        {
-          target: "pino/file",
-          options: { destination: "./logs/error.log" },
-          level: "error",
-        },
-      ],
-    }
-  : {
-      target: "pino-pretty",
-      options: {
-        colorize: true,
-        levelFirst: true,
-        translateTime: "SYS:standard",
-        ignore: "pid,hostname",
-      },
-    }
+// Simplified logger configuration
 export const logger = pino({
-  ...baseLoggerConfig,
-  transport: transportConfig,
+  level: logLevel,
+  transport: {
+    target: "pino-pretty",
+    options: {
+      colorize: true,
+      levelFirst: true,
+      translateTime: "SYS:standard",
+    },
+  },
 })
 
 export const startTimer = () => {
@@ -69,6 +26,7 @@ export const startTimer = () => {
   }
 }
 
+// Modified HTTP logger to limit request logging
 export const httpLogger = pinoHttp({
   logger,
   genReqId: (req) => (req.headers["x-request-id"] as string) || randomUUID(),
@@ -77,20 +35,28 @@ export const httpLogger = pinoHttp({
     if (res.statusCode >= 400) return "warn"
     return "info"
   },
+  // Customize what gets logged for requests
+  serializers: {
+    req: (req) => ({
+      id: req.id,
+      method: req.method,
+      url: req.url.split("?")[0], // Only log the path without query parameters
+    }),
+    res: (res) => ({
+      statusCode: res.statusCode,
+    }),
+  },
+  // Don't log the entire request body
+  autoLogging: {
+    ignore: (req) => req.url.includes("/health"),
+  },
+  // Customize the log message
   customSuccessMessage: (req, res) => {
-    return `${req.method} ${req.url} completed with ${res.statusCode}`
+    return `${req.method} ${req.url.split("?")[0]} completed with ${res.statusCode}`
   },
   customErrorMessage: (req, res, err) => {
-    return `${req.method} ${req.url} failed with ${res.statusCode}: ${err?.message || "Unknown error"}`
+    return `${req.method} ${req.url.split("?")[0]} failed with ${res.statusCode}`
   },
-  customProps: (req, res) => {
-    return {
-      responseTime: (res as any).responseTime,
-      userAgent: req.headers["user-agent"],
-      contentLength: res.getHeader("content-length"),
-    }
-  },
-  wrapSerializers: true,
 })
 
 process.on("uncaughtException", (err) => {

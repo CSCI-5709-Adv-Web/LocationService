@@ -113,7 +113,6 @@ export const findCoordinates = async (address: string): Promise<GeocodeResponse>
         logger.debug(`Cache hit for coordinates: ${address}`)
         return cachedResult
       }
-      logger.debug(`Cache miss for coordinates: ${address}`)
       logger.debug(`Fetching coordinates for: ${address}`)
       const command = new SearchPlaceIndexForTextCommand({
         IndexName: process.env.AWS_PLACE_INDEX || "Place-Index-1",

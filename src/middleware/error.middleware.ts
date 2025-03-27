@@ -8,9 +8,7 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
       request: {
         id: req.id,
         method: req.method,
-        url: req.url,
-        params: req.params,
-        query: req.query,
+        url: req.url.split("?")[0], // Only log the path without query parameters
       },
       user: (req as any).user?.clientId,
     },
@@ -38,7 +36,7 @@ export const notFoundHandler = (req: Request, res: Response) => {
       request: {
         id: req.id,
         method: req.method,
-        url: req.url,
+        url: req.url.split("?")[0], // Only log the path without query parameters
         ip: req.ip,
       },
     },
