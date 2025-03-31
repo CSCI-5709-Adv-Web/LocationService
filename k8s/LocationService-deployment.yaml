@@ -59,10 +59,7 @@ spec:
                   name: location-service-configmap
                   key: CACHE_TTL_ROUTES
             - name: REDIS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: location-service-secret
-                  key: REDIS_PASSWORD
+              value: ""
             - name: AWS_REGION
               valueFrom:
                 secretKeyRef:
@@ -88,11 +85,6 @@ spec:
                 secretKeyRef:
                   name: location-service-secret
                   key: AWS_ROUTE_CALCULATOR
-            - name: JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: location-service-secret
-                  key: JWT_SECRET
           readinessProbe:
             httpGet:
               path: /health
@@ -123,4 +115,3 @@ spec:
       targetPort: 5001
       name: http
   type: LoadBalancer
-
