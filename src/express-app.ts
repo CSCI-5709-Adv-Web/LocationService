@@ -27,9 +27,6 @@ app.use((req, res, next) => {
 
 // Swagger documentation
 app.use("/api-docs", serve, setup)
-app.use("/", (req: Request, res: Response, _: NextFunction) => {
-  res.status(200).json({ message: "I am healthy!" });
-});
 app.use("/docs", docsRoutes)
 app.use("/location", locationRoutes)
 app.get("/health", (req, res) => {
@@ -39,6 +36,9 @@ app.get("/health", (req, res) => {
     timestamp: Date.now(),
   })
 })
+app.use("/", (req: Request, res: Response, _: NextFunction) => {
+  res.status(200).json({ message: "I am healthy!" });
+});
 app.use(notFoundHandler)
 app.use(errorHandler)
 export default app
