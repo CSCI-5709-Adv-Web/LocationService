@@ -1,4 +1,4 @@
-import express from "express"
+import express, { NextFunction, Request, Response } from "express";
 import locationRoutes from "./routes/location.routes"
 import { httpLogger } from "./utils/logger"
 import cors from "cors"
@@ -27,7 +27,9 @@ app.use((req, res, next) => {
 
 // Swagger documentation
 app.use("/api-docs", serve, setup)
-
+app.use("/", (req: Request, res: Response, _: NextFunction) => {
+  res.status(200).json({ message: "I am healthy!" });
+});
 app.use("/docs", docsRoutes)
 app.use("/location", locationRoutes)
 app.get("/health", (req, res) => {
